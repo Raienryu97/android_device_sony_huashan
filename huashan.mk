@@ -209,8 +209,7 @@ PRODUCT_PACKAGES += \
     Snap \
     camera.qcom \
     libshim_cald \
-    libshim_camera \
-    libshim_qcopt
+    libshim_camera
 
 # Healthd
 PRODUCT_PACKAGES += \
