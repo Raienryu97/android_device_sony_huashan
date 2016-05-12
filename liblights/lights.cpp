@@ -389,24 +389,33 @@ set_light_leds_locked(struct light_device_t* dev,
                 if (! is_lit(&g_notification)) {
                     led_alpha[0] = LEDS_COLORS_BRIGHTNESS_CHARGING;
 
-                    /* Notify 100% charged device with a slow wave */
-                    if (led_alpha[1] >= LEDS_CHARGED_LEVEL) {
-                        led_alpha[1] = LEDS_CHARGED_LEVEL;
-                        delayOff = LEDS_CHARGED_DELAY_OFF;
-                        delayOn = LEDS_CHARGED_DELAY_ON;
-                        flashMode = LIGHT_FLASH_TIMED;
-                    }
-                    /* Disable previous LEDs program */
-                    else {
+                    /* Ignore unsupported segmented LEDs framework */
+                    if (led_alpha[1] == 0x00 || led_alpha[1] == 0xFF) {
+                        leds_unit_maxid = 1;
+                        unsigned int led_rgb_off[3] = {0,0,0};
+                        for (i = 2; i <= LEDS_UNIT_COUNT; ++i) {
+                            set_light_led_rgb(i, led_rgb_off, leds_brightness,
+                                    LEDS_RGB_WRITE);
+                        }
                         set_light_leds_program(LEDS_PROGRAM_KEEP,
                                 LEDS_SEQ_BLINK_NONE, flashMode, 0, 0);
                     }
+                    /* Segmented LEDs supported by the framework */
+                    else {
+                        /* Notify 100% charged device with a slow wave */
+                        if (led_alpha[1] >= LEDS_CHARGED_LEVEL) {
+                            led_alpha[1] = LEDS_CHARGED_LEVEL;
+                            delayOff = LEDS_CHARGED_DELAY_OFF;
+                            delayOn = LEDS_CHARGED_DELAY_ON;
+                            flashMode = LIGHT_FLASH_TIMED;
+                        }
 
-                    /* Lateral LEDs as dimmer power level indicators */
-                    led_alpha[1] =
-                    led_alpha[2] = (led_alpha[1] *
-                            LEDS_COLORS_BRIGHTNESS_CHARGING) /
-                            (LEDS_CHARGED_RATIO * LEDS_CHARGED_LEVEL);
+                        /* Lateral LEDs as dimmer power level indicators */
+                        led_alpha[1] =
+                        led_alpha[2] = (led_alpha[1] *
+                                LEDS_COLORS_BRIGHTNESS_CHARGING) /
+                                (LEDS_CHARGED_RATIO * LEDS_CHARGED_LEVEL);
+                    }
                 }
                 /* LED charging in the middle */
                 else {
