@@ -16,12 +16,10 @@
 
 package com.android.internal.telephony;
 
-import static com.android.internal.telephony.RILConstants.*;
-
 import android.content.Context;
 import android.os.AsyncResult;
 import android.os.Message;
-import android.os.Parcel;
+import android.os.SystemProperties;
 
 public class SonyRIL extends RIL implements CommandsInterface {
     public SonyRIL(Context context, int networkModes, int cdmaSubscription) {
@@ -41,23 +39,5 @@ public class SonyRIL extends RIL implements CommandsInterface {
             AsyncResult.forMessage(response, ret, null);
             response.sendToTarget();
         }
-    }
-
-    protected Object
-    responseFailCause(Parcel p) {
-        int numInts;
-        int response[];
-
-        numInts = p.readInt();
-        response = new int[numInts];
-        for (int i = 0 ; i < numInts ; i++) {
-            response[i] = p.readInt();
-        }
-        LastCallFailCause failCause = new LastCallFailCause();
-        failCause.causeCode = response[0];
-        if (p.dataAvail() > 0) {
-          failCause.vendorCause = p.readString();
-        }
-        return failCause;
     }
 }
